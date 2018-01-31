@@ -12,11 +12,13 @@ DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT=true;
 DOCKER_REPOSITORY_URL="harbor1.ghama.io"
 DOCKER_REPOSITORY_PROJECT="test"
 DOCKER_REPOSITORY_USER="bckim0620"
-DOCKER_REPOSITORY_PASSWOrd="Skcc1234"
+DOCKER_REPOSITORY_PASSWORD="Skcc1234"
 DOCKER_IMAGE_NAME="test-app"
 
-#Kuberetes deployment, service파일 경로
+#Kuberetes deployment, service/Dockerfile 경로
+#파일이 존재하는 폴더까지의 경로
 KUBERNETES_DEPLOYMENT_PATH="./k8s/"
+DOCKER_FILE_PATH="./"
 
 #Kuberetes Cluster 정보
 #ICP의 경우 포탈에서 Configur client 코드를 복사하여 line 65~69에 덮어쓰기
@@ -47,16 +49,16 @@ else
 fi
 
 if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
-	showlog "Delete docker image, kubernetes deployment."
+	showlog "Delete docker image, kubernetes deployment"
 	kubectl delete -f ${KUBERNETES_DEPLOYMENT_PATH}
 	docker rmi ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
 fi
 
 showlog "Build/tag docker image" 
-docker build . -t ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
+docker build ${DOCKER_FILE_PATH} -t ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
 
 showlog "Login docker repository"
-docker login ${DOCKER_REPOSITORY_URL} -u ${DOCKER_REPOSITORY_USER} -p ${DOCKER_REPOSITORY_PASSWOrd}
+docker login ${DOCKER_REPOSITORY_URL} -u ${DOCKER_REPOSITORY_USER} -p ${DOCKER_REPOSITORY_PASSWORD}
 
 showlog "Push Docker image"
 docker push ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
@@ -68,7 +70,7 @@ kubectl config set-credentials ${KUBERNETES_CLUSTER_USERNAME} --token=${KUBERNET
 kubectl config set-context ${KUBERNETES_CONTEXT_NAME} --user=${KUBERNETES_CLUSTER_USERNAME} --namespace=${KUBERNETES_CLUSTER_NAMESPACE}
 kubectl config use-context ${KUBERNETES_CONTEXT_NAME}
 
-showlog "Create kuberetes deployment(kubectl apply)"
+showlog "Create kuberetes deployment"
 kubectl apply -f ${KUBERNETES_DEPLOYMENT_PATH}
 
 showlog "Pod infomation"
