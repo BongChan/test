@@ -1,25 +1,25 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: test-deployment
+  name: node-test-deployment
   labels:
-    app: test-deployment-label
+    app: node-test-deployment-label
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: test-pod-label
+      app: node-test-pod-label
   template:
     metadata:
       labels:
-        app: test-pod-label
+        app: node-test-pod-label
     spec:
       containers:
-      - name: test-container
+      - name: node-test-container
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: k8s
-        image: coramdeo0620/test-app
+        image: coramdeo0620/node-test-app
         ports:
-        - containerPort: 8090
+        - containerPort: 8080
         imagePullPolicy: Always
