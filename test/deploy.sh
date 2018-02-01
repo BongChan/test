@@ -64,7 +64,8 @@ if [ "${PROJECT_TYPE}" == "maven" ]; then
 		exit 1
 	fi
 else
-	showlog "Node packaging"
+	showlog "NPM install"
+	npm install
 fi
 
 if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
