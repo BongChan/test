@@ -1,11 +1,15 @@
 #!/bin/sh
 
+#작성중인 Project 종류
+#maven, node
+PROJECT_TYPE="node"
+
 #Maven build 과정 중 테스트 수행 여부
 MAVEN_TEST_SKIP=true;
 
 #기존에 생성된 Docker Image, Kubernetes deploy, service 삭제여부
 #기존에 생성된 Kubernetes deploy, service는 kubectl apply로 덮어쓰기 불가, 삭제 후 재생성 필요 
-DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT=true;
+DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT=true
 
 #Docker Repository 정보
 #Docker hub는 DOCKER_REPOSITORY_PROJECT와 DOCKER_REPOSITORY_USER 동일
@@ -21,11 +25,11 @@ KUBERNETES_DEPLOYMENT_PATH="./k8s/"
 DOCKER_FILE_PATH="./"
 
 #Kuberetes Cluster 정보
-#ICP의 경우 포탈에서 Configur client 코드를 복사하여 line 57~71에 덮어쓰기
+#ICP의 경우 포탈에서 Configur client 코드를 복사하여 showlog "Login kubernetes" 밑에 덮어쓰기
 KUBERNETES_CLUSTER_NAME="mycluster.icp"
 KUBERNETES_CLUSTER_URL="https://169.56.113.156:8001"
 KUBERNETES_CLUSTER_USERNAME="admin"
-KUBERNETES_CLUSTER_TOKEN="eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF0X2hhc2giOiItNTA5YS00OWJ3T0tuTEk4Q0p1YmF3IiwiaXNzIjoiaHR0cHM6Ly9teWNsdXN0ZXIuaWNwOjk0NDMvb2lkYy9lbmRwb2ludC9PUCIsImF1ZCI6ImRmODJmYjY3YWEyMWZjZTc5N2M1ODBjNDI5MTEyMmQxIiwiZXhwIjoxNTE3NDE2MjcyLCJpYXQiOjE1MTczNzMwNzJ9.GVRfvuucvBu9Oa-4Myel8lneqw1lu84vdfuj8pR1TMuTpoy26CJPzSENu8gvEcG9uRSJX3jABlam5I10_bPuN9ZuM1H9oYt2pgZh_zuXEXiwmPIWGo23MVA_h4IXf7p5FuBxEKfsB8PYJarJl3u4-XXYErvXNy32trDv93uF0gV0ZGr7ZcTsYFzg5ogpqwDbL87uq4hoKO2_saUMqXgkzj3x_-vEiCHoDc0_9ALv-yhudqjzWaJjIXBQF3tsbsVjFYRrTiAtldMJSYaz3DYqt9oygJM-DUCZ7m_z1Tcco2g5jwF7ccd8z_qY91UGmbQo21LTXHfyOc6A1THwt4z9Kw"
+KUBERNETES_CLUSTER_TOKEN="eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF0X2hhc2giOiIzT2lwNy01VzZaNnRfVGxDQmVoR1pnIiwiaXNzIjoiaHR0cHM6Ly9teWNsdXN0ZXIuaWNwOjk0NDMvb2lkYy9lbmRwb2ludC9PUCIsImF1ZCI6ImRmODJmYjY3YWEyMWZjZTc5N2M1ODBjNDI5MTEyMmQxIiwiZXhwIjoxNTE3NTAyNDc4LCJpYXQiOjE1MTc0NTkyNzh9.cPG-_QtnLMqM1gV6TREurD8ToUM2c2GbrjcZJfXIvRZEgiNeyhqUp2HzBncNJIcx3LKWmNlNInTz-HTR1spt9j-EyTtetTQTspfW1GmuA4FX207yLwHz7M9veRkQx7uOMekUomfUYnZYyuXEUnicthrilhqldz6gIS-xtd9cnSU-d0qIOR3Syl1O20z_ektN5GL0KqoFaC_QHY2in8h94E_jSnuXU3WPCRxOaet31r0LquXHaIFgdRZAMbKqlr5j15YTSpnctOzq-ipbacFKE-UlPaep5bEm-UMqTbrGW4a318x8TXRjmNdbYqQaQ--tBKhmPhPc_8xnWXgcMPfSFQ"
 KUBERNETES_CLUSTER_NAMESPACE="dtlabs08"
 KUBERNETES_CONTEXT_NAME="mycluster.icp-context"
 
@@ -40,12 +44,17 @@ function showlog() {
 
 showlog "deploy.sh"
 
-showlog "Maven install"
+showlog "Packaging"
 
-if ./mvnw clean install -Dmaven.test.skip=${MAVEN_TEST_SKIP}; then
-	echo ""
+if [ "${PROJECT_TYPE}" == "maven" ]; then
+	showlog "Maven packaging"
+	if ./mvnw clean install -Dmaven.test.skip=${MAVEN_TEST_SKIP}; then
+		echo ""
+	else
+		exit 1
+	fi
 else
-	exit 1
+	showlog "Node packging"
 fi
 
 if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
