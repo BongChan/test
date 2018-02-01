@@ -1,40 +1,42 @@
 #!/bin/sh
 
-#�옉�꽦以묒씤 Project 醫낅쪟
+#작성중인 Project 종류
 #maven, node
 PROJECT_TYPE="node"
 
-#Maven build 怨쇱젙 以� �뀒�뒪�듃 �닔�뻾 �뿬遺�
+#Maven build 과정 중 테스트 수행 여부
 MAVEN_TEST_SKIP=true;
+NODE_NPM_INSTALL=false;
 
-#湲곗〈�뿉 �깮�꽦�맂 Docker Image, Kubernetes deploy, service �궘�젣�뿬遺�
-#湲곗〈�뿉 �깮�꽦�맂 Kubernetes deploy, service�뒗 kubectl apply濡� �뜮�뼱�벐湲� 遺덇�, �궘�젣 �썑 �옱�깮�꽦 �븘�슂 
+#기존에 생성된 Docker Image, Kubernetes deploy, service 삭제여부
+#기존에 생성된 Kubernetes deploy, service는 kubectl apply로 덮어쓰기 불가, 삭제 후 재생성 필요 
 DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT=true
 
-#Docker Repository �젙蹂�
-#Dockerhub registry: registry-1.docker.io
+#Docker Repository 정보
+#Dockerhub registry: docker.io
 #Harbor registry: harbor1.ghama.io
-#Docker hub�뒗 DOCKER_REPOSITORY_PROJECT�� DOCKER_REPOSITORY_USER �룞�씪
+#Docker hub는 DOCKER_REPOSITORY_PROJECT와 DOCKER_REPOSITORY_USER 동일
+
 #DOCKER_REPOSITORY_URL="harbor1.ghama.io"
 #DOCKER_REPOSITORY_PROJECT="test"
 #DOCKER_REPOSITORY_USER="bckim0620"
 #DOCKER_REPOSITORY_PASSWORD="Skcc1234"
 #DOCKER_IMAGE_NAME="test-app"
 
-DOCKER_REPOSITORY_URL="registry-1.docker.io"
+DOCKER_REPOSITORY_URL="docker.io"
 DOCKER_REPOSITORY_PROJECT="coramdeo0620"
 DOCKER_REPOSITORY_USER="coramdeo0620"
 DOCKER_REPOSITORY_PASSWORD="qhdcksdlek123"
 DOCKER_IMAGE_NAME="node-test-app"
 
 
-#Kuberetes deployment, service/Dockerfile 寃쎈줈
-#�뙆�씪�씠 議댁옱�븯�뒗 �뤃�뜑源뚯��쓽 寃쎈줈
+#Kuberetes deployment, service/Dockerfile 경로
+#파일이 존재하는 폴더까지의 경로
 KUBERNETES_DEPLOYMENT_PATH="./k8s/"
 DOCKER_FILE_PATH="./"
 
-#Kuberetes Cluster �젙蹂�
-#ICP�쓽 寃쎌슦 �룷�깉�뿉�꽌 Configur client 肄붾뱶瑜� 蹂듭궗�븯�뿬 showlog "Login kubernetes" 諛묒뿉 �뜮�뼱�벐湲�
+#Kuberetes Cluster 정보
+#ICP의 경우 포탈에서 Configur client 코드를 복사하여 showlog "Login kubernetes" 밑에 덮어쓰기
 KUBERNETES_CLUSTER_NAME="mycluster.icp"
 KUBERNETES_CLUSTER_URL="https://169.56.113.156:8001"
 KUBERNETES_CLUSTER_USERNAME="admin"
@@ -63,13 +65,17 @@ if [ "${PROJECT_TYPE}" == "maven" ]; then
 		exit 1
 	fi
 else
-	showlog "Node packging"
+	showlog "Node packaging"
+	if ${NODE_NPM_INSTALL}; then
+		npm install
+	fi
 fi
 
 if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
 	showlog "Delete docker image, kubernetes deployment"
 	kubectl delete -f ${KUBERNETES_DEPLOYMENT_PATH}
 	docker rmi ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
+	docker rmi ${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
 fi
 
 showlog "Build/Tag docker image" 
