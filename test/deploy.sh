@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Maven build 과정 중 테스트 수행 여부
-MVN_TEST_SKIP=true;
+MAVEN_TEST_SKIP=true;
 
 #기존에 생성된 Docker Image, Kubernetes deploy, service 삭제여부
 #기존에 생성된 Kubernetes deploy, service는 kubectl apply로 덮어쓰기 불가, 삭제 후 재생성 필요 
@@ -21,7 +21,7 @@ KUBERNETES_DEPLOYMENT_PATH="./k8s/"
 DOCKER_FILE_PATH="./"
 
 #Kuberetes Cluster 정보
-#ICP의 경우 포탈에서 Configur client 코드를 복사하여 line 65~69에 덮어쓰기
+#ICP의 경우 포탈에서 Configur client 코드를 복사하여 line 57~71에 덮어쓰기
 KUBERNETES_CLUSTER_NAME="mycluster.icp"
 KUBERNETES_CLUSTER_URL="https://169.56.113.156:8001"
 KUBERNETES_CLUSTER_USERNAME="admin"
@@ -42,7 +42,7 @@ showlog "deploy.sh"
 
 showlog "Maven install"
 
-if ./mvnw clean install -Dmaven.test.skip=${MVN_TEST_SKIP}; then
+if ./mvnw clean install -Dmaven.test.skip=${MAVEN_TEST_SKIP}; then
 	echo ""
 else
 	exit 1
@@ -54,7 +54,7 @@ if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
 	docker rmi ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
 fi
 
-showlog "Build/tag docker image" 
+showlog "Build/Tag docker image" 
 docker build ${DOCKER_FILE_PATH} -t ${DOCKER_REPOSITORY_URL}/${DOCKER_REPOSITORY_PROJECT}/${DOCKER_IMAGE_NAME}
 
 showlog "Login docker repository"
