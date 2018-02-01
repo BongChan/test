@@ -1,11 +1,12 @@
 #!/bin/sh
 
 #작성중인 Project 종류
-#maven, node
+#maven | node
 PROJECT_TYPE="maven"
 
 #Maven build 과정 중 테스트 수행 여부
 MAVEN_TEST_SKIP=true;
+NODE_NPM_INSTALL=false;
 
 #기존에 생성된 Docker Image, Kubernetes deploy, service 삭제여부
 #기존에 생성된 Kubernetes deploy, service는 kubectl apply로 덮어쓰기 불가, 삭제 후 재생성 필요 
@@ -16,17 +17,11 @@ DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT=true
 #Harbor registry: harbor1.ghama.io
 #Docker hub는 DOCKER_REPOSITORY_PROJECT와 DOCKER_REPOSITORY_USER 동일
 
-#DOCKER_REPOSITORY_URL="harbor1.ghama.io"
-#DOCKER_REPOSITORY_PROJECT="test"
-#DOCKER_REPOSITORY_USER="bckim0620"
-#DOCKER_REPOSITORY_PASSWORD="Skcc1234"
-#DOCKER_IMAGE_NAME="test-app"
-
 DOCKER_REPOSITORY_URL="docker.io"
-DOCKER_REPOSITORY_PROJECT="coramdeo0620"
-DOCKER_REPOSITORY_USER="coramdeo0620"
-DOCKER_REPOSITORY_PASSWORD="12345"
-DOCKER_IMAGE_NAME="test-app"
+DOCKER_REPOSITORY_PROJECT=""
+DOCKER_REPOSITORY_USER=""
+DOCKER_REPOSITORY_PASSWORD=""
+DOCKER_IMAGE_NAME=""
 
 
 #Kuberetes deployment, service/Dockerfile 경로
@@ -64,8 +59,10 @@ if [ "${PROJECT_TYPE}" == "maven" ]; then
 		exit 1
 	fi
 else
-	showlog "NPM install"
-	npm install
+	showlog "Node packaging"
+	if ${NODE_NPM_INSTALL}; then
+		npm install
+	fi
 fi
 
 if ${DELETE_PREVIOUS_DOCKER_IMAGE_AND_KUBERNETES_DEPLOYMENT}; then
